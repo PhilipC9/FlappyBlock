@@ -8,7 +8,7 @@ namespace FlappySpel
     class Game
     {
         // Fönster
-        public int width = 900;
+        public const int width = 900;
         public const int height = 600;
         private int fps = 60;
         private string title = "Flappy Cube";
