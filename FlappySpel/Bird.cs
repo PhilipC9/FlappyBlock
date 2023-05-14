@@ -23,20 +23,21 @@ namespace FlappySpel
 
 
 
-        // Generisk lista med spelar färger
-        List<Color> colorList = new List<Color>()
-        {
-          Color.WHITE,
-          Color.GREEN,
-          Color.BLUE,
-          Color.YELLOW,
-          Color.ORANGE,
-          Color.PURPLE,
-          Color.GOLD,
-          Color.VIOLET,
-          Color.GRAY,
-          Color.BROWN
-        };
+        // Generisk Dictionary med spelar färger
+        Dictionary<int, Color> colorDict = new Dictionary<int, Color>()
+    {
+        {0, Color.WHITE},
+        {1, Color.GREEN},
+        {2, Color.BLUE},
+        {3, Color.YELLOW},
+        {4, Color.ORANGE},
+        {5, Color.PURPLE},
+        {6, Color.GOLD},
+        {7, Color.VIOLET},
+        {8, Color.GRAY},
+        {9, Color.BROWN}
+    };
+
 
         // Använder random för att slumpa färg
         private Random random = new Random();
@@ -47,10 +48,11 @@ namespace FlappySpel
             SetRandomColor();
         }
 
-        // Väljer en slumpad färg utifrån listan
+        // Väljer en slumpad färg utifrån Dictionary
         public void SetRandomColor()
         {
-            color = colorList[random.Next(colorList.Count)];
+            int index = random.Next(colorDict.Count);
+            color = colorDict[index];
         }
 
 
