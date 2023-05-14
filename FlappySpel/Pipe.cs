@@ -32,10 +32,10 @@ namespace FlappySpel
         }
 
         // Kontrollerar om röret har åkt ut ur fönstret
-        
+
         public bool IsOutOfBounds()
         {
-            if (pipes[0] < 0 && !pipeCounter)
+            if (pipes.ContainsKey(0) && pipes[0] < 0 && !pipeCounter)
             {
                 pipeCounter = true;
                 return true;
