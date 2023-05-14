@@ -1,7 +1,10 @@
-﻿using Raylib_cs;
+﻿using System;
+using System;
+using Raylib_cs;
 using static Raylib_cs.Color;
 using static Raylib_cs.Raylib;
 using static Raylib_cs.KeyboardKey;
+using System.Numerics;
 
 namespace FlappySpel
 {
@@ -22,6 +25,9 @@ namespace FlappySpel
 
         // Spel objekt
         private Player birdplayer;
+        private Pipe pipe;
+        
+
 
         public Game()
         {
@@ -69,7 +75,14 @@ namespace FlappySpel
         {
             if (IsKeyPressed(KEY_SPACE) && !isPaused)
             {
-                birdplayer.Jump();
+                try
+                {
+                    birdplayer.Jump();
+                }
+                catch
+                {
+
+                }
             }
         }
 
@@ -83,7 +96,62 @@ namespace FlappySpel
         private void Update()
         {
             birdplayer.Update(deltaTime);
+            pipe.Update(deltaTime);
+            UpdateScore();
+
+            CollideCheck();
         }
+        private void CollideCheck()
+        {
+            if (Hit())
+            {
+                RestartGame();
+            }
+        }
+
+        private void UpdateScore()
+        {
+            if (pipe.IsOutOfBounds())
+            {
+                birdplayer.IncreaseScore();
+            }
+        }
+
+
+        private bool Hit()
+        {
+            var pipes = pipe.pipes;
+            int playerSize = Player.size;
+            int playerX = Player.posX;
+            int playerY = birdplayer.posY;
+            bool hasHit = false;
+
+            // Check if the player collides with any pipe
+            foreach (var p in pipes)
+            {
+                int pipeX = p.Key;
+                float pipeY = p.Value;
+                if ((playerX + playerSize >= pipeX)
+                    && (playerX <= pipeX + Pipe.width))
+                {
+                    if ((playerY + playerSize >= pipeY)
+                        || (playerY <= pipeY - Pipe.spacing))
+                    {
+                        hasHit = true;
+                        break;
+                    }
+                }
+            }
+
+            return hasHit;
+        }
+
+        private void RestartGame()
+        {
+            birdplayer.InitPlayer();
+            pipe.ClearPipes();
+        }
+
 
         private void Render()
         {
@@ -95,6 +163,8 @@ namespace FlappySpel
             // Rita Score text (Bakom allt)
             DisplayScore();
 
+            // Ritar rör
+            pipe.Render();
             // Rita spelare
             birdplayer.Render();
 
@@ -104,7 +174,7 @@ namespace FlappySpel
         // Visar poäng i bakgrunden
         private void DisplayScore()
         {
-            DrawText($"{birdplayer.Score}", (width / 2) - 60, (height / 2) - 80, 100, GRAY);
+            DrawText($"{birdplayer.score}", (width / 2) - 60, (height / 2) - 80, 100, GRAY);
         }
 
         // Skapar fönster
@@ -126,6 +196,12 @@ namespace FlappySpel
 
             // Skapar spelare
             birdplayer = new Player();
+            pipe = new Pipe();
+
+
+        //Startar om spel
+        RestartGame();
+
         }
     }
 }

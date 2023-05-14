@@ -7,13 +7,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace FlappySpel
 {
     class Player
     {
         // Spelar variabler
-        public int size = 25;                        // Spelar storlek
+        public const int size = 25;                        // Spelar storlek
+        public const int posX = 100;                 // S
         public int jumpHeight = 450;                 // hopphöjd
         private float gravity = 20f;                 // gravitation
         private float ySpeed;                        // fall hastighet
@@ -53,7 +55,7 @@ namespace FlappySpel
 
 
         // Poäng
-        public int Score { get; private set; }
+        public int score { get; private set; }
 
         // Spelarens position
         public int posY { get; private set; }
@@ -65,9 +67,15 @@ namespace FlappySpel
         public void InitPlayer()
         {
             posY = (Game.height / 2) - (size / 2);
-            Score = 0;
+            score = 0;
             ySpeed = 0f;
             fall = false;
+        }
+
+        // Ökar poäng
+        public void IncreaseScore()
+        {
+            score += 1;
         }
 
         // Funktion för när spelaren hoppar

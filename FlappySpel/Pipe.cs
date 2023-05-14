@@ -10,9 +10,9 @@ namespace FlappySpel
     {
         // Variabler för rör
         private Color color = Color.GREEN;  // Rörens färg
-        public int width = 50;  // Rörens bredd
-        public int height = (Game.height / 4) * 5;  // Rörens höjd
-        public int spacing = 140;  // Avståndet mellan rörens öppningar
+        public static int width = 50;  // Rörens bredd
+        public static int height = (Game.height / 4) * 5;  // Rörens höjd
+        public static int spacing = 140;  // Avståndet mellan rörens öppningar
         public int speed = 150;  // Rörens hastighet
         public int spawnPos = Game.width - (Game.width / 3);  // Positionen där nya rör skapas
 
@@ -20,7 +20,7 @@ namespace FlappySpel
         public bool pipeCounter { get; private set; }
 
         // En lista av rör med dess positioner
-        private readonly Dictionary<int, float> pipes;
+        public readonly Dictionary<int, float> pipes;
         private readonly Random rand;
 
         // Konstruktorn för klassen Pipe
@@ -32,6 +32,7 @@ namespace FlappySpel
         }
 
         // Kontrollerar om röret har åkt ut ur fönstret
+        
         public bool IsOutOfBounds()
         {
             if (pipes[0] < 0 && !pipeCounter)
