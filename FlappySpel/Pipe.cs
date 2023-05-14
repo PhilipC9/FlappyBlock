@@ -2,113 +2,124 @@
 using static Raylib_cs.Color;
 using Raylib_cs;
 using FlappySpel;
+using System.Numerics;
 
 namespace FlappySpel
 {
-    // Skapar en klass som ärver från GameObject
-    class Pipe : GameObject
+    class Pipe
     {
         // Variabler för rör
-        private Color color = Color.GREEN;  // Rörens färg
-        public static int width = 50;  // Rörens bredd
-        public static int height = (Game.height / 4) * 5;  // Rörens höjd
-        public static int spacing = 140;  // Avståndet mellan rörens öppningar
-        public int speed = 150;  // Rörens hastighet
-        public int spawnPos = Game.width - (Game.width / 3);  // Positionen där nya rör skapas
+        private Color COLOR = GREEN;
+        public const int width = 50;
+        public const int height = (Game.height / 4) * 5;
+        public const int spacing = 140;
+        public const int speed = 150;
+        public const int spawnPos = Game.width - (Game.width / 3);
 
-        // Antal rör i fönstret som räknas som poäng
-        public bool pipeCounter { get; private set; }
+        // Antal rör i fönstret
+        public bool countPipes { get; private set; }
 
-        // En lista av rör med dess positioner
-        public readonly Dictionary<int, float> pipes;
-        private readonly Random rand;
+        // Slumpad plats för röret
+        private readonly List<Vector2> _pipes;
+        private readonly Random _rand;
 
-        // Konstruktorn för klassen Pipe
-        public Pipe()
+        // Returnar antal rör som existerar
+        public List<Vector2> GetPipes()
         {
-            pipes = new Dictionary<int, float>();  // Skapar en ny tom lista av rör
-            rand = new Random();  // Skapar en ny instans av Random för att slumpa rörens höjder
-            SpawnPipe();  // Skapar första röret
+            return _pipes;
         }
 
-        // Kontrollerar om röret har åkt ut ur fönstret
+        public Pipe()
+        {
+            _pipes = new List<Vector2>();
+            _rand = new Random();
+            SpawnPipe();
+        }
 
+        // När röret uåker ut från fönstret
         public bool IsOutOfBounds()
         {
-            if (pipes.ContainsKey(0) && pipes[0] < 0 && !pipeCounter)
+            if (_pipes[0].X < 0 && !countPipes)
             {
-                pipeCounter = true;
+                countPipes = true;
                 return true;
             }
 
             return false;
         }
 
-        // Uppdaterar rörens position
-        public override void Update(float deltaT)
+        public void Update(float deltaT)
         {
-            SpawnPipe();  // Skapar ett nytt rör om det behövs
-            MovePipes(deltaT);  // Flyttar alla rör
-            RemovePipe();  // Tar bort rör som har åkt ut ur fönstret
+            // Anropar SpawnPipe-metoden för att skapa nya rör
+            SpawnPipe();
+            // Anropar MovePipes-metoden för att flytta rören
+            MovePipes(deltaT);
+            // Anropar RemovePipe-metoden för att ta bort rören som åkt ut ur bild
+            RemovePipe();
         }
 
-        // Ritar ut rören
-        public override void Render()
+        public void Render()
         {
             // Skapar röret
-            foreach (var p in pipes)
+            foreach (var p in _pipes)
             {
-                int x = p.Key;
-                int botY = (int)p.Value;
+                // Bestämmer position och storlek för rören
+                int x = (int)p.X;
+                int botY = (int)p.Y;
                 int topY = botY - spacing - height;
-                DrawRectangle(x, botY, width, height, color);  // Ritar ut bottenröret
-                DrawRectangle(x, topY, width, height, color);  // Ritar ut toppröret
+
+                // Ritar ut det nedre röret
+                DrawRectangle(x, botY, width, height, COLOR);
+                // Ritar ut det övre röret
+                DrawRectangle(x, topY, width, height, COLOR);
             }
         }
-
-        // Flyttar alla rör
+ 
+        // Flyttar alla rör till vänster
         private void MovePipes(float deltaT)
         {
-            for (int i = 0; i < pipes.Count; i++)
+            for (int i = 0; i < _pipes.Count; i++)
             {
-                var pipetmp = pipes.ElementAt(i);
-                pipes[pipetmp.Key] = pipetmp.Value - speed * deltaT;  // Uppdaterar rörets position baserat på tiden som har gått
+                var pipetmp = _pipes[i];
+                pipetmp.X -= speed * deltaT;
+                _pipes[i] = pipetmp;
             }
         }
 
         // Slumpar höjden på röret
         private float Setheight()
         {
-            return rand.Next(Game.height / 3, Game.height - 100);  // Slumpar ett heltal mellan 1/3 och 1 av fönstrets höjd
+            // Returnerar en slumpmässig höjd mellan 1/3 av spelhöjden och 100 pixlar från botten
+            return _rand.Next(Game.height / 3, Game.height - 100);
         }
 
-        // Funktionen skapar nya rör
+        // Skapar nya rör om det inte finns några eller om det sista röret har åkt förbi spawnPos
         private void SpawnPipe()
         {
-            int count = pipes.Count;
+            int count = _pipes.Count;
 
-            // Om det inte finns några rör eller det sista röret är tillräckligt långt bort, 
-            // läggs ett nytt rör till på höger sida av fönstret
-            if ((count == 0) || (pipes.ElementAt(count - 1).Key <= spawnPos))
+            if ((count == 0) || (_pipes[count - 1].X <= spawnPos))
             {
-                pipes.Add(Game.width, Setheight());
+                // Lägger till ett nytt rör med höjden som slumpas av Setheight-metoden
+                _pipes.Add(new Vector2(Game.width, Setheight()));
             }
         }
 
-        // Funktionen tar bort alla rör och skapar sedan nya rör på ny slumpad höjd
+        // Tar bort alla rör och ritar ut dom igen med ny position
         public void ClearPipes()
         {
-            pipes.Clear();
+            _pipes.Clear();
             SpawnPipe();
         }
 
-        // Funktionen tar bort röret när det har åkt utanför vänsterkanten av fönstret
+
+        // Tar bort röret när det åker ut ur bild
         private void RemovePipe()
         {
-            if (pipes.ElementAt(0).Key + width < 0)
+            if (_pipes[0].X + width < 0)
             {
-                pipes.Remove(pipes.ElementAt(0).Key);
-                pipeCounter = false;
+                _pipes.RemoveAt(0);
+                countPipes = false;
             }
         }
     }

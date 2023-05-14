@@ -26,6 +26,7 @@ namespace FlappySpel
         // Spel objekt
         private Player birdplayer;
         private Pipe pipe;
+
         
 
 
@@ -95,50 +96,52 @@ namespace FlappySpel
         // För varje frame kommer spelaren att uppdateras.
         private void Update()
         {
-            birdplayer.Update(deltaTime);
-            pipe.Update(deltaTime);
-            UpdateScore();
+            birdplayer.Update(deltaTime); // Uppdatera fågels position
+            pipe.Update(deltaTime); // Uppdatera rörens position
+            UpdateScore(); // Uppdatera spelarens poäng
 
-            CollideCheck();
+            CollideCheck(); // Kolla om fågeln kolliderar med rör
         }
         private void CollideCheck()
         {
-            if (Hit())
+            if (Hit()) // Om fågeln träffar ett rör
             {
-                RestartGame();
+                RestartGame(); // Starta om spelet
             }
         }
 
         private void UpdateScore()
         {
-            if (pipe.IsOutOfBounds())
+            if (pipe.IsOutOfBounds()) // Om röret har lämnat spelområdet
             {
-                birdplayer.IncreaseScore();
+                birdplayer.IncreaseScore(); // Öka spelarens poäng
             }
         }
 
 
         private bool Hit()
         {
-            var pipes = pipe.pipes;
-            int playerSize = Player.size;
-            int playerX = Player.posX;
-            int playerY = birdplayer.posY;
+            var pipes = pipe.GetPipes(); // Hämta rören från Pipe-objektet
+
+
+            int playerSize = Player.size; // Hämta storleken på spelaren
+            int playerX = Player.posX; // Hämta spelarens X-position
+            int playerY = birdplayer.posY; // Hämta spelarens Y-position
             bool hasHit = false;
 
-            // Check if the player collides with any pipe
+            // Kolla om spelaren kolliderar med något rör
             foreach (var p in pipes)
             {
-                int pipeX = p.Key;
-                float pipeY = p.Value;
+                int pipeX = (int)p.X; // Hämta X-positionen för röret
+                float pipeY = p.Y; // Hämta Y-positionen för röret
                 if ((playerX + playerSize >= pipeX)
                     && (playerX <= pipeX + Pipe.width))
                 {
                     if ((playerY + playerSize >= pipeY)
                         || (playerY <= pipeY - Pipe.spacing))
                     {
-                        hasHit = true;
-                        break;
+                        hasHit = true; // Kollidering har skett
+                        break; 
                     }
                 }
             }
@@ -148,8 +151,8 @@ namespace FlappySpel
 
         private void RestartGame()
         {
-            birdplayer.InitPlayer();
-            pipe.ClearPipes();
+            birdplayer.InitPlayer(); // Återställ fågelns position och hastighet
+            pipe.ClearPipes(); // Återställ alla rör till ursprungsläget
         }
 
 
